@@ -1,4 +1,4 @@
-name: Build and Deploy Pipeline
+name: CI Pipeline
 
 on:
   push:
@@ -13,32 +13,27 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check out code
-        uses: actions/checkout@v2
+    - name: Set up job
+      run: echo "Setting up the job..."
 
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.x'
+    - name: Check out code
+      uses: actions/checkout@v3
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
 
-      - name: Run unit tests
-        run: |
-          python -m unittest discover -s tests -p '*_test.py'
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; else echo "No requirements.txt found"; fi
 
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
-    if: github.ref == 'refs/heads/main'  # Solo se despliega desde main
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v2
+    - name: Run unit tests
+      run: python -m unittest discover -s tests -p '*_test.py'
 
-      - name: Deploy to Dev environment
-        run: |
-          # Comandos para desplegar en el entorno Dev
-          echo "Desplegando en entorno Dev"
+    - name: Post job actions
+      run: echo "Job completed"
+
+    - name: Complete job
+      run: echo "All steps complete!"
